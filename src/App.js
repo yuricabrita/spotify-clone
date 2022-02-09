@@ -1,25 +1,22 @@
-import logo from './logo.svg';
-import './App.css';
+import { render } from "react-dom";
+import "./App.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import Login from "./Login";
+import Dashboard from "./Dashboard";
+import { Link, Outlet } from "react-router-dom";
+
+const code = new URLSearchParams(window.location.search).get("code");
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+  return code ? (
+    <div>
+      <Dashboard code={code} />
+      <Outlet />
     </div>
+  ) : (
+    <Login />
   );
 }
+document.body.style = "background: rgba(20,20,255,0.1);";
 
 export default App;
