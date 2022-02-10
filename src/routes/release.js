@@ -12,12 +12,16 @@ export default function Release() {
   const [accessToken, setAccessToken] = useState("");
   const params = useParams();
   useEffect(() => {
+    if (!accessToken) return;
+
     const token = localStorage.getItem("accessToken");
     spotifyApi.setAccessToken(token);
     setAccessToken(token);
   }, []);
 
   useEffect(() => {
+    if (!accessToken) return;
+
     // Get a playlist
     spotifyApi
       .getAlbum(params.id)

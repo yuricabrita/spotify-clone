@@ -8,7 +8,13 @@ export default function ProfileInfo({ userInfo }) {
       <Title title="User Info"></Title>
       <Container className="d-flex flex-row py-2">
         <Container>
-          <img src={userInfo.images} alt="profile image"></img>
+          <img
+            src={
+              "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"
+            }
+            alt="profile image"
+            style={{ width: "160px", height: "160px" }}
+          ></img>
         </Container>
         <Container>
           <div>

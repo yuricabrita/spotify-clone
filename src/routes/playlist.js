@@ -31,6 +31,21 @@ export default function Playlist() {
       });
   }, [accessToken]);
 
+  function handleClick() {
+    // Follow a playlist (privately)
+    spotifyApi
+      .followPlaylist("5ieJqeLJjjI8iJWaxeBLuK", {
+        public: false,
+      })
+      .then(
+        function (data) {
+          console.log("Playlist successfully followed privately!");
+        },
+        function (err) {
+          console.log("Something went wrong!", err);
+        }
+      );
+  }
   return (
     <Container>
       {playlist.length !== 0 ? (

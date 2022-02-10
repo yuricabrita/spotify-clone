@@ -2,65 +2,76 @@ import React from "react";
 import { Container } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import ImageCard from "./ImageCard";
+import ImageContainer from "./ImageContainer";
 
-export default function Carrousel({ title, itemList, type }) {
+export default function Carrousel({ itemList, type }) {
   function renderSwitch(type) {
     switch (type) {
       case "album":
         return (
-          <Container>
-            <div className="mt-3">
-              <h2>{title}</h2>
-            </div>
-            <div className="d-flex mt-2">
+          <ImageContainer title="Albums">
+            <>
               {itemList.map((item) => (
                 <ImageCard
                   item={item.album}
                   key={item.album.uri}
-                  type={type}
+                  pathName={`albums/${item.album.id}`}
                 ></ImageCard>
               ))}
-            </div>
-          </Container>
+            </>
+          </ImageContainer>
         );
       case "playlist":
         return (
-          <Container>
-            <div className="mt-3">
-              <h2>{title}</h2>
-            </div>
-            <div className="d-flex mt-2">
+          <ImageContainer title="Playlists">
+            <>
               {itemList.map((item) => (
-                <ImageCard item={item} key={item.uri} type={type}></ImageCard>
+                <ImageCard
+                  item={item}
+                  key={item.uri}
+                  pathName={`playlists/${item.id}`}
+                ></ImageCard>
               ))}
-            </div>
-          </Container>
+            </>
+          </ImageContainer>
         );
       case "newReleases":
         return (
-          <Container>
-            <div className="mt-3">
-              <h2>{title}</h2>
-            </div>
-            <div className="d-flex mt-2">
+          <ImageContainer title="New Releases">
+            <>
               {itemList.map((item) => (
-                <ImageCard item={item} key={item.uri} type={type}></ImageCard>
+                <ImageCard
+                  item={item}
+                  key={item.uri}
+                  pathName={`releases/${item.id}`}
+                ></ImageCard>
               ))}
-            </div>
-          </Container>
+            </>
+          </ImageContainer>
+        );
+      case "artist":
+        return (
+          <ImageContainer title="Artists">
+            <>
+              {itemList.map((item) => (
+                <ImageCard
+                  item={item}
+                  key={item.uri}
+                  pathName={`artists/${item.id}`}
+                ></ImageCard>
+              ))}
+            </>
+          </ImageContainer>
         );
       default:
         return (
-          <Container>
-            <div className="mt-3">
-              <h2>{title}</h2>
-            </div>
-            <div className="d-flex mt-2">
+          <ImageContainer title="">
+            <>
               {itemList.map((item) => (
                 <ImageCard item={item} key={item.uri} type={type}></ImageCard>
               ))}
-            </div>
-          </Container>
+            </>
+          </ImageContainer>
         );
     }
   }

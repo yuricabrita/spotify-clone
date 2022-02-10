@@ -7,25 +7,27 @@ import Title from "./Title";
 import ImageCard from "./ImageCard";
 import ProfileInfo from "./ProfileInfo";
 import Carrousel from "./Carrousel";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const spotifyApi = new SpotifyWebApi({
   clientId: "7da4614683774b88acddfcd8ad23bf35",
 });
 
-export default function Dashboard({ code }) {
-  const accessToken = useAuth(code);
+export default function Dashboard() {
+  const location = useLocation();
+  const accessToken = useAuth(location.state.code);
+
   const [search, setSearch] = useState("");
-  const [searchResults, setSearchResults] = useState({
-    tracks: [],
-    playlists: [],
-    artists: [],
-  });
+  const [trackSearchResults, setTrackSearchResults] = useState([]);
+  const [artistSearchResults, setArtistSearchResults] = useState([]);
+  const [playlistSearchResults, setPlaylistSearchResults] = useState([]);
   const [userInfo, setUserInfo] = useState([]);
   const [featuredPlaylists, setFeaturedPlaylists] = useState([]);
   const [newReleases, setNewReleases] = useState([]);
   const [myAlbums, setMyAlbums] = useState([]);
   const [myPlaylists, setMyPlaylists] = useState([]);
+  const [myArtists, setMyArtists] = useState([]);
 
   useEffect(() => {
     if (!accessToken) return;
@@ -51,6 +53,7 @@ export default function Dashboard({ code }) {
     // Get the authenticated user
     if (!accessToken) return;
     spotifyApi.getMe().then((res) => {
+      console.log("user info", res.body.images.length);
       setUserInfo({
         name: res.body.display_name,
         email: res.body.email,
@@ -68,7 +71,6 @@ export default function Dashboard({ code }) {
     if (!accessToken) return;
     spotifyApi
       .getFeaturedPlaylists({
-        limit: 6,
         offset: 1,
         timestamp: "2022-02-10T09:00:00",
       })
@@ -86,7 +88,6 @@ export default function Dashboard({ code }) {
     // Get albums in the signed in user's Your Music library
     spotifyApi
       .getMySavedAlbums({
-        limit: 6,
         offset: 0,
       })
       .then((res) => {
@@ -103,7 +104,7 @@ export default function Dashboard({ code }) {
     if (!accessToken) return;
 
     spotifyApi
-      .getNewReleases({ limit: 6, offset: 0 })
+      .getNewReleases({ offset: 0 })
       .then((res) => {
         console.log("new releases", res.body.albums.items);
         setNewReleases(res.body.albums.items);
@@ -114,7 +115,22 @@ export default function Dashboard({ code }) {
   }, [accessToken]);
 
   useEffect(() => {
-    // Retrieve new releases
+    if (!accessToken) return;
+
+    /* Get followed artists */
+    spotifyApi.getFollowedArtists().then(
+      function (data) {
+        // 'This user is following 1051 artists!'
+        setMyArtists(data.body.artists.items);
+        console.log("MY ARTISTS", data.body.artists);
+      },
+      function (err) {
+        console.log("Something went wrong!", err);
+      }
+    );
+  }, [accessToken]);
+
+  useEffect(() => {
     if (!accessToken) return;
     // Get a user's playlists
     spotifyApi
@@ -128,18 +144,24 @@ export default function Dashboard({ code }) {
   }, [accessToken]);
 
   function handleKeyPress(e) {
-    if (e.charCode == 13) {
-      if (!search)
-        return setSearchResults({
-          tracks: [],
-          playlists: [],
-          artists: [],
-        });
+    if (e.charCode === 13) {
+      if (!search) return setTrackSearchResults([]);
       if (!accessToken) return;
-      console.log("THE SEARCH CURRENT IS", search);
-      spotifyApi.searchTracks(search).then((res) => {
-        setSearchResults({ tracks: res.body.tracks.items });
-        console.log("search term", search);
+      spotifyApi.searchTracks(`track:${search}`).then((res) => {
+        setTrackSearchResults(res.body.tracks.items);
+      });
+      // Search artists whose name contains 'Love'
+      spotifyApi.searchArtists(search).then((res) => {
+        setArtistSearchResults(res.body.artists.items);
+      });
+      // Search playlists whose name or description contains 'workout'
+      spotifyApi.searchPlaylists(search).then((res) => {
+        setPlaylistSearchResults(res.body.playlists.items);
+      });
+      // Search playlists whose name or description contains 'workout'
+      spotifyApi.searchPlaylists(search).then((res) => {
+        console.log("playlists search res", res.body);
+        // setArtistSearchResults(res.body.playlists.items);
       });
     }
   }
@@ -156,31 +178,22 @@ export default function Dashboard({ code }) {
         onChange={(e) => setSearch(e.target.value)}
         onKeyPress={(e) => handleKeyPress(e)}
       ></Form.Control>
-
-      {/* <Carrousel
-        itemList={searchResults.tracks}
-        title="Tracks"
-        type="newReleases"
-      ></Carrousel> */}
-
+      {trackSearchResults.length > 0 && (
+        <Carrousel itemList={trackSearchResults} type="album" />
+      )}
+      {artistSearchResults.length > 0 && (
+        <Carrousel itemList={artistSearchResults} type="artist" />
+      )}
+      {playlistSearchResults.length > 0 && (
+        <Carrousel itemList={playlistSearchResults} type="playlist" />
+      )}
       <Title title="Browse"></Title>
-      <Carrousel
-        itemList={featuredPlaylists}
-        title="New Playlists"
-        type="playlist"
-      ></Carrousel>
-      <Carrousel
-        itemList={newReleases}
-        title="New Releases"
-        type="newReleases"
-      ></Carrousel>
+      <Carrousel itemList={featuredPlaylists} type="playlist" />
+      <Carrousel itemList={newReleases} type="newReleases" />
       <Title title="My Library"></Title>
-      <Carrousel itemList={myAlbums} title="My Albums" type="album"></Carrousel>
-      <Carrousel
-        itemList={myPlaylists}
-        title="My Playlists"
-        type="playlist"
-      ></Carrousel>
+      <Carrousel itemList={myAlbums} title="My Albums" type="album" />
+      <Carrousel itemList={myPlaylists} type="playlist" />
+      <Carrousel itemList={myArtists} type="artist" />
     </Container>
   );
 }

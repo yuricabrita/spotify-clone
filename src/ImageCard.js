@@ -2,28 +2,29 @@ import React from "react";
 import { Card, Container } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
-export default function ImageCard({ item, type }) {
-  function setLink(type) {
-    if (type === "album") {
-      return { to: `/albums/${item.id}`, state: { album: item } };
-    } else if (type === "newReleases") {
-      return { to: `/releases/${item.id}`, state: { release: item } };
-    } else if (type === "playlist") {
-      return { to: `/playlists/${item.id}`, state: { playlist: item } };
-    }
-  }
-  const linkParams = setLink(type);
+export default function ImageCard({ item, pathName }) {
   return (
-    <Card
-      style={{
-        width: "20rem",
-        marginRight: "1rem",
-      }}
-      key={item.uri}
-    >
-      <Link to={linkParams.to} state={linkParams.state}>
-        <Card.Img variant="top" src={item.images[0].url} />
-      </Link>
-    </Card>
+    <Container>
+      <Card
+        style={{
+          width: "10rem",
+          marginRight: "1rem",
+        }}
+        key={item.uri}
+      >
+        <Link to={pathName} state={item}>
+          <Card.Img
+            variant="top"
+            src={
+              item.images.length > 0
+                ? item.images[0].url
+                : "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"
+            }
+            width={160}
+            height={160}
+          />
+        </Link>
+      </Card>
+    </Container>
   );
 }
